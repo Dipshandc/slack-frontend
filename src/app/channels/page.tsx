@@ -18,7 +18,7 @@ interface Channel {
   members: Member[];
 }
 
-export default function Home() {
+export default function Channel() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
@@ -68,9 +68,33 @@ export default function Home() {
 
   return (
     <main className="flex max-h-screen flex-col justify-start">
-      <h1>
-        <a href="/channels">Go to channels</a>
-      </h1>
+      <section className="bg-fuchsia-50 rounded-xl  h-full">
+        <div className="flex justify-start rounded-xl">
+          <div className="bg-gray-200 w-[350px] min-h-screen rounded-l-xl p-5 justify-start">
+            <h1 className="text-black text-xl">Channels</h1>
+            <hr className=" border-black" />
+
+            <div className="flex flex-col">
+              {channels?.map((data, index) => {
+                return (
+                  <a href={`/channels/${data.id}`}>
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-2 border-b border  hover:bg-gray-300 m-1 rounded-md text-black"
+                    >
+                      {`# ${data.name}`}
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+          <div className="bg-gray-50 w-full rounded-r-xl text-black text-center font-bold justify-center mt-auto mb-auto">
+            {" "}
+            Click channels to send file
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
