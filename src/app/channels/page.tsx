@@ -1,7 +1,6 @@
 "use client";
 import axios from "axios";
 import { useRef, MouseEvent, useState, useEffect } from "react";
-import { fetchChannels, sendFile } from "@/lib/api";
 
 interface Member {
   id: string;
@@ -34,6 +33,54 @@ export default function Channel() {
     setFile(selectedFile);
   };
 
+  const sendFile = async (data: any) => {
+    const accessToken = localStorage.getItem("accessToken");
+    const formData = data;
+    try {
+      const response: any = await fetch("https://slack.com/api/files.upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        console.log("File and message sent successfully");
+      } else {
+        console.error("Error sending file and message:", data.error);
+      }
+    } catch (error) {
+      console.error("Request failed:", error);
+    }
+  };
+
+  const fetchChannels = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      const response = await fetch("https://slack.com/api/conversations.list", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        console.log("Conversations:", data.channels);
+        return data;
+      } else {
+        console.error("Error retrieving conversations:", data.error);
+      }
+    } catch (error) {
+      console.error("Request failed:", error);
+    }
+  };
+
   const handleFileSubmit = async () => {
     if (!file) {
       console.log("No file selected");
@@ -46,7 +93,7 @@ export default function Channel() {
 
     try {
       const response = await sendFile(formData);
-      console.log("Upload successful", response.data);
+      console.log("Upload successful", response);
       alert("Upload successful");
     } catch (error) {
       console.error("Error uploading file:", error);
