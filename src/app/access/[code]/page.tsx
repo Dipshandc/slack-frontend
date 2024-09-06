@@ -10,8 +10,8 @@ export default function SendFile({ params }: { params: { code: string } }) {
   useEffect(() => {
     const clientId = process.env.CLIENT_ID;
     const clientSecret = process.env.CLIENT_SECRET;
-    const authorizationCode = params.code; // Assuming 'id' is your code
-    const redirectUri = "https://localhost:3000";
+    const authorizationCode = params.code;
+    const redirectUri = "https://slack-frontend-iota.vercel.app/";
 
     const exchangeCodeForToken = async () => {
       try {
