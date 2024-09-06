@@ -211,6 +211,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
   };
 
   useEffect(() => {
+    console.log("use effect")
     const fetchData = async () => {
       try {
         const response = await fetchChannels();
@@ -218,18 +219,17 @@ export default function ChannelId({ params }: { params: { id: string } }) {
         const newchannel = response?.data.filter(
           (channel: Channel) => channel.id === id
         );
-        if (newchannel && newchannel.length > 0) {
+        setSelectedChannels(newchannel);
+        (newchannel && newchannel.length > 0) 
           setMembers(newchannel[0].members);
-          console.log(newchannel[0].members);
-        } else {
-          setMembers([]);
-        }
+          console.log("Printing",newchannel[0].members);
+        
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
-  });
+  },[]);
 
   return (
     <main className="flex max-h-screen w-screen bg-fuchsia-50  rounded-xl justify-start">
