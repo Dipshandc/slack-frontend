@@ -16,16 +16,15 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
   const code = searchParams.code;
 
   useEffect(() => {
-    const clientId = process.env.CLIENT_ID;
-    console.log(clientId);
-    const clientSecret = process.env.CLIENT_SECRET;
-    console.log(clientSecret);
+    const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
+    console.log("client", clientId);
+    const clientSecret = process.env.NEXT_PUBLIC_CLIENT_SECRET;
+    console.log("clientSecret", clientSecret);
     const authorizationCode = code;
     const redirectUri = "https://slack-frontend-iota.vercel.app/";
 
     const exchangeCodeForToken = async () => {
       try {
-        console.log("check");
         const response = await axios.post(
           "https://slack.com/api/oauth.v2.access",
           null,
