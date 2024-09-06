@@ -7,10 +7,10 @@ import { useRouter } from "next/router";
 
 export default function SendFile({ params }: { params: { code: string } }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const router = useRouter();
+  const { code } = router.query;
 
   useEffect(() => {
-    const router = useRouter();
-    const { code } = router.query;
     const clientId = process.env.CLIENT_ID;
     const clientSecret = process.env.CLIENT_SECRET;
     const authorizationCode = code;
