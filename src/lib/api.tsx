@@ -15,3 +15,16 @@ export const sendFile = async (data: FormData) => {
   });
   return response;
 };
+
+export const sendAccessToken = async (accessToken:string) => {
+  const response = await axios.post(
+    "http://127.0.0.1:8000/api/access-token/",
+    accessToken,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response;
+};

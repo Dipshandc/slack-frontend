@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { fetchChannels } from "@/lib/api";
+import { fetchChannels, sendFile } from "@/lib/api";
 import {
   useRef,
   MouseEvent,
@@ -76,119 +76,6 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     members: Member[];
   }
 
-  const fetchChannels = async () => {
-    const accessToken = localStorage.getItem("accessToken");
-    const channelsUrl = "https://slack.com/api/conversations.list";
-    const membersUrl = "https://slack.com/api/conversations.members";
-    const userInfoUrl = "https://slack.com/api/users.info";
-
-    try {
-      // Fetch channels
-      const channelsResponse = await fetch(channelsUrl, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const channelsData = await channelsResponse.json();
-
-      if (!channelsData.ok) {
-        console.error("Error retrieving channels:", channelsData.error);
-        return;
-      }
-
-      const formattedChannels: Channel[] = [];
-
-      for (const channel of channelsData.channels) {
-        const channelId = channel.id;
-        const channelInfo: Channel = {
-          id: channelId,
-          name: channel.name,
-          is_private: channel.is_private,
-          num_members: channel.num_members,
-          members: [],
-        };
-
-        // Fetch members of the channel
-        const membersResponse = await fetch(
-          `${membersUrl}?channel=${channelId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        const membersData = await membersResponse.json();
-
-        if (!membersData.ok) {
-          console.error("Error retrieving members:", membersData.error);
-          continue;
-        }
-
-        for (const userId of membersData.members) {
-          // Fetch user info
-          const userInfoResponse = await fetch(
-            `${userInfoUrl}?user=${userId}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          const userInfoData = await userInfoResponse.json();
-
-          if (userInfoData.ok) {
-            channelInfo.members.push({
-              id: userId,
-              name: userInfoData.user.name,
-            });
-          } else {
-            console.error("Error getting user info:", userInfoData.error);
-          }
-        }
-
-        formattedChannels.push(channelInfo);
-      }
-
-      console.log("Formatted Channels:", formattedChannels);
-      return formattedChannels as Channel[];
-    } catch (error) {
-      console.error("Request failed:", error);
-    }
-  };
-
-  const sendFile = async (data: any) => {
-    const accessToken = localStorage.getItem("accessToken");
-    const formData = data;
-    try {
-      const response: any = await fetch("https://slack.com/api/files.upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (data.ok) {
-        console.log("File and message sent successfully");
-      } else {
-        console.error("Error sending file and message:", data.error);
-      }
-    } catch (error) {
-      console.error("Request failed:", error);
-    }
-  };
-
   const handleFileSubmit = async () => {
     if (!file) {
       console.log("No file selected");
@@ -214,8 +101,8 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     const fetchData = async () => {
       try {
         const response = await fetchChannels();
-        setChannels(response);
-        const newchannel = response?.filter(
+        setChannels(response.data);
+        const newchannel = response?.data.filter(
           (channel: Channel) => channel.id === id
         );
         if (newchannel && newchannel.length > 0) {
@@ -233,7 +120,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
 
   return (
     <main className="flex max-h-screen w-screen bg-fuchsia-50  rounded-xl justify-start">
-      <div className="flex justify-start rounded-xl">
+      <div className="flex justify-center rounded-xl">
         <div className="bg-gray-200 w-[350px] min-h-screen rounded-l-xl p-5">
           <h1 className="text-black text-xl">Channels</h1>
           <hr className="border-black" />
@@ -253,10 +140,10 @@ export default function ChannelId({ params }: { params: { id: string } }) {
               </Link>
             ))}
           </div>
-          <div className="bg-gray-50 w-full rounded-r-xl text-black text-center font-bold justify-center mt-auto mb-auto">
-            {" "}
-            Click channels to send file
-          </div>
+        </div>
+        <div className="bg-gray-50 w-full rounded-r-xl text-black ml-auto mr-auto text-center font-bold justify-center mt-auto mb-auto">
+          {" "}
+          Click channels to send file
         </div>
       </div>
     </main>

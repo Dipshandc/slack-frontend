@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import {sendAccessToken} from "@/lib/api";
 
 interface AccessPageProps {
   searchParams: {
@@ -12,7 +13,6 @@ interface AccessPageProps {
 }
 
 const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const code = searchParams.code;
 
   useEffect(() => {
@@ -39,10 +39,18 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
         );
 
         if (response.data.ok) {
+          const accessToken = response.data.access_token;
           console.log(response);
-          setAccessToken(response.data.access_token);
-          localStorage.setItem("accessToken", response.data.access_token);
-          console.log("Access Token:", response.data.access_token);
+          console.log("Access Token:", accessToken);
+          try{
+            const response = await sendAccessToken(accessToken);
+            console.log(response)
+            alert(response.data)
+          }
+          catch(error){
+            console.log("Error sending access token to backend",error)
+          }
+
         } else {
           console.error("Error:", response.data.error);
         }

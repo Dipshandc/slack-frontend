@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { fetchChannels } from "@/lib/api";
+import { fetchChannels , sendFile } from "@/lib/api";
 import {
   useRef,
   MouseEvent,
@@ -76,118 +76,118 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     members: Member[];
   }
 
-  const fetchChannels = async () => {
-    const accessToken = localStorage.getItem("accessToken");
-    const channelsUrl = "https://slack.com/api/conversations.list";
-    const membersUrl = "https://slack.com/api/conversations.members";
-    const userInfoUrl = "https://slack.com/api/users.info";
+  // const fetchChannels = async () => {
+  //   const accessToken = localStorage.getItem("accessToken");
+  //   const channelsUrl = "https://slack.com/api/conversations.list";
+  //   const membersUrl = "https://slack.com/api/conversations.members";
+  //   const userInfoUrl = "https://slack.com/api/users.info";
 
-    try {
-      // Fetch channels
-      const channelsResponse = await fetch(channelsUrl, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+  //   try {
+  //     // Fetch channels
+  //     const channelsResponse = await fetch(channelsUrl, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
 
-      const channelsData = await channelsResponse.json();
+  //     const channelsData = await channelsResponse.json();
 
-      if (!channelsData.ok) {
-        console.error("Error retrieving channels:", channelsData.error);
-        return;
-      }
+  //     if (!channelsData.ok) {
+  //       console.error("Error retrieving channels:", channelsData.error);
+  //       return;
+  //     }
 
-      const formattedChannels: Channel[] = [];
+  //     const formattedChannels: Channel[] = [];
 
-      for (const channel of channelsData.channels) {
-        const channelId = channel.id;
-        const channelInfo: Channel = {
-          id: channelId,
-          name: channel.name,
-          is_private: channel.is_private,
-          num_members: channel.num_members,
-          members: [],
-        };
+  //     for (const channel of channelsData.channels) {
+  //       const channelId = channel.id;
+  //       const channelInfo: Channel = {
+  //         id: channelId,
+  //         name: channel.name,
+  //         is_private: channel.is_private,
+  //         num_members: channel.num_members,
+  //         members: [],
+  //       };
 
-        // Fetch members of the channel
-        const membersResponse = await fetch(
-          `${membersUrl}?channel=${channelId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+  //       // Fetch members of the channel
+  //       const membersResponse = await fetch(
+  //         `${membersUrl}?channel=${channelId}`,
+  //         {
+  //           method: "GET",
+  //           headers: {
+  //             Authorization: `Bearer ${accessToken}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
 
-        const membersData = await membersResponse.json();
+  //       const membersData = await membersResponse.json();
 
-        if (!membersData.ok) {
-          console.error("Error retrieving members:", membersData.error);
-          continue;
-        }
+  //       if (!membersData.ok) {
+  //         console.error("Error retrieving members:", membersData.error);
+  //         continue;
+  //       }
 
-        for (const userId of membersData.members) {
-          // Fetch user info
-          const userInfoResponse = await fetch(
-            `${userInfoUrl}?user=${userId}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
+  //       for (const userId of membersData.members) {
+  //         // Fetch user info
+  //         const userInfoResponse = await fetch(
+  //           `${userInfoUrl}?user=${userId}`,
+  //           {
+  //             method: "GET",
+  //             headers: {
+  //               Authorization: `Bearer ${accessToken}`,
+  //               "Content-Type": "application/json",
+  //             },
+  //           }
+  //         );
 
-          const userInfoData = await userInfoResponse.json();
+  //         const userInfoData = await userInfoResponse.json();
 
-          if (userInfoData.ok) {
-            channelInfo.members.push({
-              id: userId,
-              name: userInfoData.user.name,
-            });
-          } else {
-            console.error("Error getting user info:", userInfoData.error);
-          }
-        }
+  //         if (userInfoData.ok) {
+  //           channelInfo.members.push({
+  //             id: userId,
+  //             name: userInfoData.user.name,
+  //           });
+  //         } else {
+  //           console.error("Error getting user info:", userInfoData.error);
+  //         }
+  //       }
 
-        formattedChannels.push(channelInfo);
-      }
+  //       formattedChannels.push(channelInfo);
+  //     }
 
-      console.log("Formatted Channels:", formattedChannels);
-      return formattedChannels as Channel[];
-    } catch (error) {
-      console.error("Request failed:", error);
-    }
-  };
+  //     console.log("Formatted Channels:", formattedChannels);
+  //     return formattedChannels as Channel[];
+  //   } catch (error) {
+  //     console.error("Request failed:", error);
+  //   }
+  // };
 
-  const sendFile = async (data: any) => {
-    const accessToken = localStorage.getItem("accessToken");
-    const formData = data;
-    try {
-      const response: any = await fetch("https://slack.com/api/files.upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formData,
-      });
+  // const sendFile = async (data: any) => {
+  //   const accessToken = localStorage.getItem("accessToken");
+  //   const formData = data;
+  //   try {
+  //     const response: any = await fetch("https://slack.com/api/files.upload", {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //       body: formData,
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (data.ok) {
-        console.log("File and message sent successfully");
-      } else {
-        console.error("Error sending file and message:", data.error);
-      }
-    } catch (error) {
-      console.error("Request failed:", error);
-    }
-  };
+  //     if (data.ok) {
+  //       console.log("File and message sent successfully");
+  //     } else {
+  //       console.error("Error sending file and message:", data.error);
+  //     }
+  //   } catch (error) {
+  //     console.error("Request failed:", error);
+  //   }
+  // };
 
   const handleFileSubmit = async () => {
     if (!file) {
@@ -214,8 +214,8 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     const fetchData = async () => {
       try {
         const response = await fetchChannels();
-        setChannels(response);
-        const newchannel = response?.filter(
+        setChannels(response.data);
+        const newchannel = response?.data.filter(
           (channel: Channel) => channel.id === id
         );
         if (newchannel && newchannel.length > 0) {
