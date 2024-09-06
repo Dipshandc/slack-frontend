@@ -21,7 +21,7 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
     const clientSecret = process.env.NEXT_PUBLIC_CLIENT_SECRET;
     console.log("clientSecret", clientSecret);
     const authorizationCode = code;
-    const redirectUri = "https://slack-frontend-iota.vercel.app/";
+    const redirectUri = "https://slack-frontend-iota.vercel.app/access/";
 
     const exchangeCodeForToken = async () => {
       try {
