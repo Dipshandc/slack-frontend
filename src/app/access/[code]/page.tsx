@@ -8,8 +8,8 @@ export default function SendFile({ params }: { params: { code: string } }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const clientId = "7675090647713.7672722744069";
-    const clientSecret = "0fcdf85f98f15336f17b97d77acc4a57";
+    const clientId = process.env.CLIENT_ID;
+    const clientSecret = process.env.CLIENT_SECRET;
     const authorizationCode = params.code; // Assuming 'id' is your code
     const redirectUri = "https://localhost:3000";
 
@@ -30,9 +30,9 @@ export default function SendFile({ params }: { params: { code: string } }) {
         );
 
         if (response.data.ok) {
-          console.log(response)
+          console.log(response);
           setAccessToken(response.data.access_token);
-          localStorage.setItem("accessToken", response.data.access_token)
+          localStorage.setItem("accessToken", response.data.access_token);
           console.log("Access Token:", response.data.access_token);
         } else {
           console.error("Error:", response.data.error);
@@ -48,5 +48,9 @@ export default function SendFile({ params }: { params: { code: string } }) {
     }
   }, [params.code]);
 
-  return <div><Link href="/channels" >Go to see channels</Link></div>;
+  return (
+    <div>
+      <Link href="/channels">Go to see channels</Link>
+    </div>
+  );
 }

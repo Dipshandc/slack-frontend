@@ -1,5 +1,6 @@
 "use client";
 import axios from "axios";
+import { fetchChannels } from "@/lib/api";
 import {
   useRef,
   MouseEvent,
@@ -7,7 +8,6 @@ import {
   useEffect,
   MouseEventHandler,
 } from "react";
-// import { fetchChannels, sendFile } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TiAttachment } from "react-icons/ti";
@@ -17,8 +17,6 @@ import { GoMention } from "react-icons/go";
 interface Member {
   id: string;
   name: string;
-  real_name: string;
-  email: string;
 }
 
 interface Channel {
@@ -63,7 +61,31 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     }
   };
 
-  const sendFile = async (data:any) => {
+  // const fetchChannels = async () => {
+  //   const accessToken = localStorage.getItem("accessToken");
+  //   try {
+  //     const response = await fetch("https://slack.com/api/conversations.list", {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (data.ok) {
+  //       console.log("Conversations:", data.channels);
+  //       return data;
+  //     } else {
+  //       console.error("Error retrieving conversations:", data.error);
+  //     }
+  //   } catch (error) {
+  //     console.error("Request failed:", error);
+  //   }
+  // };
+
+  const sendFile = async (data: any) => {
     const accessToken = localStorage.getItem("accessToken");
     const formData = data;
     try {
@@ -87,7 +109,6 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     }
   };
 
-
   const handleFileSubmit = async () => {
     if (!file) {
       console.log("No file selected");
@@ -109,31 +130,6 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     }
   };
 
-  const fetchChannels = async () => {
-    const accessToken = localStorage.getItem('accessToken')
-    try {
-      const response = await fetch("https://slack.com/api/conversations.list", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-
-      });
-
-      const data = await response.json();
-
-      if (data.ok) {
-        console.log("Conversations:", data.channels);
-        return data
-      } else {
-        console.error("Error retrieving conversations:", data.error);
-      }
-    } catch (error) {
-      console.error("Request failed:", error);
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -151,7 +147,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
       }
     };
     fetchData();
-  }, []);
+  });
 
   return (
     <main className="flex max-h-screen w-screen bg-fuchsia-50  rounded-xl justify-start">

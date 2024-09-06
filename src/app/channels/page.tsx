@@ -1,12 +1,11 @@
 "use client";
 import axios from "axios";
 import { useRef, MouseEvent, useState, useEffect } from "react";
+import { sendFile } from "@/lib/api";
 
 interface Member {
   id: string;
   name: string;
-  real_name: string;
-  email: string;
 }
 
 interface Channel {
@@ -33,29 +32,29 @@ export default function Channel() {
     setFile(selectedFile);
   };
 
-  const sendFile = async (data: any) => {
-    const accessToken = localStorage.getItem("accessToken");
-    const formData = data;
-    try {
-      const response: any = await fetch("https://slack.com/api/files.upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formData,
-      });
+  // const sendFile = async (data: any) => {
+  //   const accessToken = localStorage.getItem("accessToken");
+  //   const formData = data;
+  //   try {
+  //     const response: any = await fetch("https://slack.com/api/files.upload", {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //       body: formData,
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (data.ok) {
-        console.log("File and message sent successfully");
-      } else {
-        console.error("Error sending file and message:", data.error);
-      }
-    } catch (error) {
-      console.error("Request failed:", error);
-    }
-  };
+  //     if (data.ok) {
+  //       console.log("File and message sent successfully");
+  //     } else {
+  //       console.error("Error sending file and message:", data.error);
+  //     }
+  //   } catch (error) {
+  //     console.error("Request failed:", error);
+  //   }
+  // };
 
   const fetchChannels = async () => {
     const accessToken = localStorage.getItem("accessToken");
@@ -122,13 +121,10 @@ export default function Channel() {
             <hr className=" border-black" />
 
             <div className="flex flex-col">
-              {channels?.map((data, index) => {
+              {channels?.map((data, key) => {
                 return (
-                  <a href={`/channels/${data.id}`}>
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-2 border-b border  hover:bg-gray-300 m-1 rounded-md text-black"
-                    >
+                  <a key={key} href={`/channels/${data.id}`}>
+                    <div className="flex justify-between items-center p-2 border-b border  hover:bg-gray-300 m-1 rounded-md text-black">
                       {`# ${data.name}`}
                     </div>
                   </a>
