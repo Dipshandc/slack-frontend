@@ -7,7 +7,7 @@ import {
   useEffect,
   ChangeEventHandler,
 } from "react";
-import { fetchChannels, sendFile } from "@/lib/api";
+// import { fetchChannels, sendFile } from "@/lib/api";
 import Link from "next/link";
 
 export default function Home() {

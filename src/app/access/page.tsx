@@ -3,12 +3,17 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
-export default function SendFile({ params }: { params: { code: string } }) {
+interface AccessPageProps {
+  searchParams: {
+    code?: string;
+    state?: string;
+  };
+}
+
+const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const router = useRouter();
-  const { code } = router.query;
+  const code = searchParams.code;
 
   useEffect(() => {
     const clientId = process.env.CLIENT_ID;
@@ -49,11 +54,13 @@ export default function SendFile({ params }: { params: { code: string } }) {
       console.log(authorizationCode);
       exchangeCodeForToken();
     }
-  }, [params.code]);
+  }, [code]);
 
   return (
     <div>
       <Link href="/channels">Go to see channels</Link>
     </div>
   );
-}
+};
+
+ export default AccessPage
