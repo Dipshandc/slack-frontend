@@ -17,7 +17,9 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
 
   useEffect(() => {
     const clientId = process.env.CLIENT_ID;
+    console.log(clientId);
     const clientSecret = process.env.CLIENT_SECRET;
+    console.log(clientSecret);
     const authorizationCode = code;
     const redirectUri = "https://slack-frontend-iota.vercel.app/";
 
@@ -63,4 +65,4 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
   );
 };
 
- export default AccessPage
+export default AccessPage;
