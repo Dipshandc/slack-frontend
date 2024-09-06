@@ -17,12 +17,15 @@ export const sendFile = async (data: FormData) => {
 };
 
 export const sendAccessToken = async (accessToken:string) => {
+  const data = {
+    "access":accessToken
+  }
   const response = await axios.post(
     "http://127.0.0.1:8000/api/access-token/",
-    accessToken,
+    data,
     {
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
       },
     }
   );
