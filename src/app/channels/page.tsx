@@ -1,7 +1,18 @@
 "use client";
 import axios from "axios";
-import { useRef, MouseEvent, useState, useEffect } from "react";
-import { sendFile } from "@/lib/api";
+import { fetchChannels } from "@/lib/api";
+import {
+  useRef,
+  MouseEvent,
+  useState,
+  useEffect,
+  MouseEventHandler,
+} from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { TiAttachment } from "react-icons/ti";
+import { BsSend } from "react-icons/bs";
+import { GoMention } from "react-icons/go";
 
 interface Member {
   id: string;
@@ -16,13 +27,21 @@ interface Channel {
   members: Member[];
 }
 
-export default function Channel() {
+export default function ChannelId({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { id } = params;
   const inputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<Channel[] | undefined>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [isMention, setIsMention] = useState(false);
 
-  const handleClick = (event: MouseEvent<HTMLDivElement>) => {
+  const [selectedchannels, setSelectedChannels] = useState<
+    Channel[] | undefined
+  >([]);
+
+  const handleClick = (event: MouseEvent<SVGElement>) => {
     event.preventDefault();
     inputRef.current?.click();
   };
@@ -32,34 +51,40 @@ export default function Channel() {
     setFile(selectedFile);
   };
 
-  // const sendFile = async (data: any) => {
-  //   const accessToken = localStorage.getItem("accessToken");
-  //   const formData = data;
-  //   try {
-  //     const response: any = await fetch("https://slack.com/api/files.upload", {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //       },
-  //       body: formData,
-  //     });
+  const handleMention = () => {
+    setIsMention(!isMention);
+  };
+  const handleAddMention: MouseEventHandler<HTMLDivElement> = (event) => {
+    // If you need to pass data, you can store it as a data attribute on the element
+    const data = (event.currentTarget as HTMLDivElement).dataset.mention;
+    if (data) {
+      setMessage(`${message} @${data}`);
+      setIsMention(false);
+    }
+  };
 
-  //     const data = await response.json();
+  interface Member {
+    id: string;
+    name: string;
+  }
 
-  //     if (data.ok) {
-  //       console.log("File and message sent successfully");
-  //     } else {
-  //       console.error("Error sending file and message:", data.error);
-  //     }
-  //   } catch (error) {
-  //     console.error("Request failed:", error);
-  //   }
-  // };
+  interface Channel {
+    id: string;
+    name: string;
+    is_private: boolean;
+    num_members: number;
+    members: Member[];
+  }
 
   const fetchChannels = async () => {
     const accessToken = localStorage.getItem("accessToken");
+    const channelsUrl = "https://slack.com/api/conversations.list";
+    const membersUrl = "https://slack.com/api/conversations.members";
+    const userInfoUrl = "https://slack.com/api/users.info";
+
     try {
-      const response = await fetch("https://slack.com/api/conversations.list", {
+      // Fetch channels
+      const channelsResponse = await fetch(channelsUrl, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -67,13 +92,97 @@ export default function Channel() {
         },
       });
 
+      const channelsData = await channelsResponse.json();
+
+      if (!channelsData.ok) {
+        console.error("Error retrieving channels:", channelsData.error);
+        return;
+      }
+
+      const formattedChannels: Channel[] = [];
+
+      for (const channel of channelsData.channels) {
+        const channelId = channel.id;
+        const channelInfo: Channel = {
+          id: channelId,
+          name: channel.name,
+          is_private: channel.is_private,
+          num_members: channel.num_members,
+          members: [],
+        };
+
+        // Fetch members of the channel
+        const membersResponse = await fetch(
+          `${membersUrl}?channel=${channelId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const membersData = await membersResponse.json();
+
+        if (!membersData.ok) {
+          console.error("Error retrieving members:", membersData.error);
+          continue;
+        }
+
+        for (const userId of membersData.members) {
+          // Fetch user info
+          const userInfoResponse = await fetch(
+            `${userInfoUrl}?user=${userId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          const userInfoData = await userInfoResponse.json();
+
+          if (userInfoData.ok) {
+            channelInfo.members.push({
+              id: userId,
+              name: userInfoData.user.name,
+            });
+          } else {
+            console.error("Error getting user info:", userInfoData.error);
+          }
+        }
+
+        formattedChannels.push(channelInfo);
+      }
+
+      console.log("Formatted Channels:", formattedChannels);
+      return formattedChannels as Channel[];
+    } catch (error) {
+      console.error("Request failed:", error);
+    }
+  };
+
+  const sendFile = async (data: any) => {
+    const accessToken = localStorage.getItem("accessToken");
+    const formData = data;
+    try {
+      const response: any = await fetch("https://slack.com/api/files.upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
       const data = await response.json();
 
       if (data.ok) {
-        console.log("Conversations:", data.channels);
-        return data;
+        console.log("File and message sent successfully");
       } else {
-        console.error("Error retrieving conversations:", data.error);
+        console.error("Error sending file and message:", data.error);
       }
     } catch (error) {
       console.error("Request failed:", error);
@@ -89,6 +198,7 @@ export default function Channel() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("message", message);
+    formData.append("channel_id", id);
 
     try {
       const response = await sendFile(formData);
@@ -101,43 +211,54 @@ export default function Channel() {
   };
 
   useEffect(() => {
-    const data = async () => {
+    const fetchData = async () => {
       try {
         const response = await fetchChannels();
-        setChannels(response.data);
+        setChannels(response);
+        const newchannel = response?.filter(
+          (channel: Channel) => channel.id === id
+        );
+        if (newchannel && newchannel.length > 0) {
+          setMembers(newchannel[0].members);
+          console.log(newchannel[0].members);
+        } else {
+          setMembers([]);
+        }
       } catch (error) {
         console.error(error);
       }
     };
-    data();
-  }, []);
+    fetchData();
+  });
 
   return (
-    <main className="flex max-h-screen flex-col justify-start">
-      <section className="bg-fuchsia-50 rounded-xl  h-full">
-        <div className="flex justify-start rounded-xl">
-          <div className="bg-gray-200 w-[350px] min-h-screen rounded-l-xl p-5 justify-start">
-            <h1 className="text-black text-xl">Channels</h1>
-            <hr className=" border-black" />
+    <main className="flex max-h-screen w-screen bg-fuchsia-50  rounded-xl justify-start">
+      <div className="flex justify-start rounded-xl">
+        <div className="bg-gray-200 w-[350px] min-h-screen rounded-l-xl p-5">
+          <h1 className="text-black text-xl">Channels</h1>
+          <hr className="border-black" />
 
-            <div className="flex flex-col">
-              {channels?.map((data, key) => {
-                return (
-                  <a key={key} href={`/channels/${data.id}`}>
-                    <div className="flex justify-between items-center p-2 border-b border  hover:bg-gray-300 m-1 rounded-md text-black">
-                      {`# ${data.name}`}
-                    </div>
-                  </a>
-                );
-              })}
-            </div>
+          <div className="flex flex-col">
+            {channels?.map((data) => (
+              <Link key={data.id} href={`/channels/${data.id}`}>
+                <div
+                  className={`flex justify-between items-center p-2 border-b border hover:bg-gray-300 m-1 rounded-md text-black ${
+                    id === data.id
+                      ? "bg-gray-500 text-white hover:bg-gray-500"
+                      : ""
+                  }`}
+                >
+                  {`# ${data.name}`}
+                </div>
+              </Link>
+            ))}
           </div>
           <div className="bg-gray-50 w-full rounded-r-xl text-black text-center font-bold justify-center mt-auto mb-auto">
             {" "}
             Click channels to send file
           </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

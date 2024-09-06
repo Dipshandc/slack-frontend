@@ -33,11 +33,13 @@ export default function ChannelId({ params }: { params: { id: string } }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<Channel[] | undefined>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [isMention, setIsMention] = useState(false);
 
-  const [selectedchannels, setSelectedChannels] = useState<Channel[]>([]);
+  const [selectedchannels, setSelectedChannels] = useState<
+    Channel[] | undefined
+  >([]);
 
   const handleClick = (event: MouseEvent<SVGElement>) => {
     event.preventDefault();
@@ -61,29 +63,107 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     }
   };
 
-  // const fetchChannels = async () => {
-  //   const accessToken = localStorage.getItem("accessToken");
-  //   try {
-  //     const response = await fetch("https://slack.com/api/conversations.list", {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
+  interface Member {
+    id: string;
+    name: string;
+  }
 
-  //     const data = await response.json();
+  interface Channel {
+    id: string;
+    name: string;
+    is_private: boolean;
+    num_members: number;
+    members: Member[];
+  }
 
-  //     if (data.ok) {
-  //       console.log("Conversations:", data.channels);
-  //       return data;
-  //     } else {
-  //       console.error("Error retrieving conversations:", data.error);
-  //     }
-  //   } catch (error) {
-  //     console.error("Request failed:", error);
-  //   }
-  // };
+  const fetchChannels = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    const channelsUrl = "https://slack.com/api/conversations.list";
+    const membersUrl = "https://slack.com/api/conversations.members";
+    const userInfoUrl = "https://slack.com/api/users.info";
+
+    try {
+      // Fetch channels
+      const channelsResponse = await fetch(channelsUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const channelsData = await channelsResponse.json();
+
+      if (!channelsData.ok) {
+        console.error("Error retrieving channels:", channelsData.error);
+        return;
+      }
+
+      const formattedChannels: Channel[] = [];
+
+      for (const channel of channelsData.channels) {
+        const channelId = channel.id;
+        const channelInfo: Channel = {
+          id: channelId,
+          name: channel.name,
+          is_private: channel.is_private,
+          num_members: channel.num_members,
+          members: [],
+        };
+
+        // Fetch members of the channel
+        const membersResponse = await fetch(
+          `${membersUrl}?channel=${channelId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const membersData = await membersResponse.json();
+
+        if (!membersData.ok) {
+          console.error("Error retrieving members:", membersData.error);
+          continue;
+        }
+
+        for (const userId of membersData.members) {
+          // Fetch user info
+          const userInfoResponse = await fetch(
+            `${userInfoUrl}?user=${userId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          const userInfoData = await userInfoResponse.json();
+
+          if (userInfoData.ok) {
+            channelInfo.members.push({
+              id: userId,
+              name: userInfoData.user.name,
+            });
+          } else {
+            console.error("Error getting user info:", userInfoData.error);
+          }
+        }
+
+        formattedChannels.push(channelInfo);
+      }
+
+      console.log("Formatted Channels:", formattedChannels);
+      return formattedChannels as Channel[];
+    } catch (error) {
+      console.error("Request failed:", error);
+    }
+  };
 
   const sendFile = async (data: any) => {
     const accessToken = localStorage.getItem("accessToken");
@@ -134,14 +214,16 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     const fetchData = async () => {
       try {
         const response = await fetchChannels();
-        setChannels(response.data);
-        const newchannel = response.data.filter(
+        setChannels(response);
+        const newchannel = response?.filter(
           (channel: Channel) => channel.id === id
         );
-        setSelectedChannels(newchannel);
-        console.log(newchannel);
-        setMembers(newchannel[0].members);
-        console.log(newchannel[0].members);
+        if (newchannel && newchannel.length > 0) {
+          setMembers(newchannel[0].members);
+          console.log(newchannel[0].members);
+        } else {
+          setMembers([]);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -157,7 +239,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
           <hr className="border-black" />
 
           <div className="flex flex-col">
-            {channels.map((data) => (
+            {channels?.map((data) => (
               <Link key={data.id} href={`/channels/${data.id}`}>
                 <div
                   className={`flex justify-between items-center p-2 border-b border hover:bg-gray-300 m-1 rounded-md text-black ${
@@ -175,7 +257,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
       </div>
 
       <div className="flex flex-col bg-gray-50 w-full">
-        {selectedchannels.map((channel, index) => {
+        {selectedchannels?.map((channel, index) => {
           return (
             <>
               <div className="bg-gray-300 w-full rounded-r-xl gap-3 text-black flex  font-bold justify-start p-3">
