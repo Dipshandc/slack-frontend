@@ -101,7 +101,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
 
   const sendMessage = async (data: FormData) => {
     const response = await axios.post(
-      `http://127.0.0.1:8000/api/message/`,
+      `http://127.0.0.1:8000/api/message/${id}`,
       data,
       {
         headers: {
@@ -116,14 +116,14 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     if (!file) {
       const formData = new FormData();
       formData.append("message", message);
-      formData.append("channel_id", id);
       try {
         const response = await sendMessage(formData);
-        console.log("Upload successful", response);
-        alert("Upload successful");
+        console.log(response);
+        console.log("Message sent successfully", response);
+        alert("Message sent successfully");
       } catch (error) {
-        console.error("Error uploading file:", error);
-        alert("Error uploading file");
+        console.error("Error sending messsage:", error);
+        alert("Error sending messsage");
       }
     } else {
       const formData = new FormData();
