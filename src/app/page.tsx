@@ -7,7 +7,7 @@ export default function Home() {
       <div className="">
         <div className="flex gap-4 mt-auto mb-auto ">
           {" "}
-          <Link href="https://slack.com/oauth/v2/authorize?client_id=7675090647713.7672722744069&scope=channels:read,chat:write,chat:write.public,files:write,groups:read,team:read,users:read.email,users:read&user_scope=">
+          <Link href="https://slack.com/oauth/v2/authorize?client_id=7675090647713.7672722744069&scope=channels:history,channels:read,chat:write,chat:write.public,files:write,groups:history,groups:read,im:history,mpim:history,team:read,users:read,users:read.email,channels:join&user_scope=">
             <img
               alt="Add to Slack"
               height="40"
