@@ -119,32 +119,30 @@ export default function ChannelId({ params }: { params: { id: string } }) {
   });
 
   return (
-    <main className="flex max-h-screen w-screen bg-fuchsia-50  rounded-xl justify-start">
-      <div className="flex justify-center rounded-xl">
-        <div className="bg-gray-200 w-[350px] min-h-screen rounded-l-xl p-5">
-          <h1 className="text-black text-xl">Channels</h1>
-          <hr className="border-black" />
+    <main className="flex max-h-screen h-screen w-full bg-fuchsia-50  rounded-xl justify-start">
+      <div className="bg-gray-200 w-[350px] min-h-screen rounded-l-xl p-5">
+        <h1 className="text-black text-xl">Channels</h1>
+        <hr className="border-black" />
 
-          <div className="flex flex-col">
-            {channels?.map((data) => (
-              <Link key={data.id} href={`/channels/${data.id}`}>
-                <div
-                  className={`flex justify-between items-center p-2 border-b border hover:bg-gray-300 m-1 rounded-md text-black ${
-                    id === data.id
-                      ? "bg-gray-500 text-white hover:bg-gray-500"
-                      : ""
-                  }`}
-                >
-                  {`# ${data.name}`}
-                </div>
-              </Link>
-            ))}
-          </div>
+        <div className="flex flex-col">
+          {channels?.map((data) => (
+            <Link key={data.id} href={`/channels/${data.id}`}>
+              <div
+                className={`flex justify-between items-center p-2 border-b border hover:bg-gray-300 m-1 rounded-md text-black ${
+                  id === data.id
+                    ? "bg-gray-500 text-white hover:bg-gray-500"
+                    : ""
+                }`}
+              >
+                {`# ${data.name}`}
+              </div>
+            </Link>
+          ))}
         </div>
-        <div className="bg-gray-50 w-full rounded-r-xl text-black ml-auto mr-auto text-center font-bold justify-center mt-auto mb-auto">
-          {" "}
-          Click channels to send file
-        </div>
+      </div>
+      <div className="bg-gray-50 w-full h-full flex items-center rounded-r-xl text-black text-center font-bold justify-center mt-auto mb-auto">
+        {" "}
+        <h1 className="">Click channels to send file</h1>
       </div>
     </main>
   );

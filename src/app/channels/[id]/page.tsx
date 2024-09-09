@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { fetchChannels , sendFile } from "@/lib/api";
+import { fetchChannels, sendFile } from "@/lib/api";
 import {
   useRef,
   MouseEvent,
@@ -75,29 +75,75 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     members: Member[];
   }
 
+  const fetchMessage = async () => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/message/${id}`,{
+              headers: {
+      "Content-Type": "application/json",
+    },
+        }
+      );
+      console.log(response)
+      // setChannels(response.data);
+      // const newchannel = response?.data.filter(
+      //   (channel: Channel) => channel.id === id
+      // );
+      // setSelectedChannels(newchannel);
+      // newchannel && newchannel.length > 0;
+      // setMembers(newchannel[0].members);
+      // console.log("Printing", newchannel[0].members);
+      // return response;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const sendMessage = async (data: FormData) => {
+    const response = await axios.post(
+      `http://127.0.0.1:8000/api/message/`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  };
+
   const handleFileSubmit = async () => {
     if (!file) {
-      console.log("No file selected");
-      return;
-    }
+      const formData = new FormData();
+      formData.append("message", message);
+      formData.append("channel_id", id);
+      try {
+        const response = await sendMessage(formData);
+        console.log("Upload successful", response);
+        alert("Upload successful");
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        alert("Error uploading file");
+      }
+    } else {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("message", message);
+      formData.append("channel_id", id);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("message", message);
-    formData.append("channel_id", id);
-
-    try {
-      const response = await sendFile(formData);
-      console.log("Upload successful", response);
-      alert("Upload successful");
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("Error uploading file");
+      try {
+        const response = await sendFile(formData);
+        console.log("Upload successful", response);
+        alert("Upload successful");
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        alert("Error uploading file");
+      }
     }
   };
 
   useEffect(() => {
-    console.log("use effect")
+    console.log("use effect");
     const fetchData = async () => {
       try {
         const response = await fetchChannels();
@@ -106,16 +152,16 @@ export default function ChannelId({ params }: { params: { id: string } }) {
           (channel: Channel) => channel.id === id
         );
         setSelectedChannels(newchannel);
-        (newchannel && newchannel.length > 0) 
-          setMembers(newchannel[0].members);
-          console.log("Printing",newchannel[0].members);
-        
+        newchannel && newchannel.length > 0;
+        setMembers(newchannel[0].members);
+        console.log("Printing", newchannel[0].members);
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
-  },[]);
+    fetchMessage();
+  }, []);
 
   return (
     <main className="flex max-h-screen w-screen bg-fuchsia-50  rounded-xl justify-start">
@@ -166,8 +212,9 @@ export default function ChannelId({ params }: { params: { id: string } }) {
                   })}
                 </div>
               )}
-              {
-                <div className="bg-black rounded-md text-start text-white p-3 mt-[585px] ml-3 mr-4 flex items-center gap-4">
+              <div className="w-full h-full max-h-full  overflow-y-scroll"></div>
+              <div className="px-4 sticky bottom-0 py-1 w-full">
+                <div className="bg-gray-500 rounded-md text-start text-white p-3 flex items-center gap-2">
                   <TiAttachment
                     className="hover:cursor-pointer"
                     onClick={handleClick}
@@ -179,18 +226,19 @@ export default function ChannelId({ params }: { params: { id: string } }) {
                     ref={inputRef}
                     type="file"
                   />
-                  <div className="flex justify-center items-center ml-4">
+                  <div className="flex justify-center items-center ml-2">
                     {file && <h2>{file.name}</h2>}
                   </div>
                   <GoMention
                     className="hover:cursor-pointer"
                     onClick={handleMention}
+                    size={20}
                   />
                   <input
                     onChange={(e) => setMessage(e.target.value)}
                     value={message}
                     placeholder="Type your message here or click @ to mention user"
-                    className="bg-transparent outline-none w-full"
+                    className="bg-transparent outline-none flex-grow w-full"
                     type="text"
                   />
                   <BsSend
@@ -199,7 +247,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
                     onClick={handleFileSubmit}
                   />
                 </div>
-              }
+              </div>
             </>
           );
         })}

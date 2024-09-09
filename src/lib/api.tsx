@@ -20,14 +20,15 @@ export const sendAccessToken = async (accessToken:string) => {
   const data = {
     "access":accessToken
   }
-  const response = await axios.post(
-    "http://127.0.0.1:8000/api/access-token/",
-    data,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  const response = await axios.post(`${API_BASE_URL}/api/access-token/`, data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response;
 };
+
+
+
+
+
