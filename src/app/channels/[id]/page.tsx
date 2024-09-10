@@ -78,13 +78,14 @@ export default function ChannelId({ params }: { params: { id: string } }) {
   const fetchMessage = async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/message/${id}`,{
-              headers: {
-      "Content-Type": "application/json",
-    },
+        `http://127.0.0.1:8000/api/message/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
-      console.log(response)
+      console.log(response);
       // setChannels(response.data);
       // const newchannel = response?.data.filter(
       //   (channel: Channel) => channel.id === id
@@ -120,6 +121,8 @@ export default function ChannelId({ params }: { params: { id: string } }) {
         const response = await sendMessage(formData);
         console.log(response);
         console.log("Message sent successfully", response);
+        setFile(null);
+        setMessage("");
         alert("Message sent successfully");
       } catch (error) {
         console.error("Error sending messsage:", error);
@@ -134,6 +137,8 @@ export default function ChannelId({ params }: { params: { id: string } }) {
       try {
         const response = await sendFile(formData);
         console.log("Upload successful", response);
+        setFile(null);
+        setMessage("");
         alert("Upload successful");
       } catch (error) {
         console.error("Error uploading file:", error);
