@@ -27,6 +27,26 @@ interface Channel {
   members: Member[];
 }
 
+interface Message {
+  user_name: string;
+  message: string;
+  img: string;
+  file: string | null;
+}
+
+interface Member {
+  id: string;
+  name: string;
+}
+
+interface Channel {
+  id: string;
+  name: string;
+  is_private: boolean;
+  num_members: number;
+  members: Member[];
+}
+
 export default function ChannelId({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { id } = params;
@@ -35,6 +55,8 @@ export default function ChannelId({ params }: { params: { id: string } }) {
   const [file, setFile] = useState<File | null>(null);
   const [channels, setChannels] = useState<Channel[] | undefined>([]);
   const [members, setMembers] = useState<Member[]>([]);
+  const [messageHistory, setMessageHistory] = useState<Message[]>([]);
+
   const [isMention, setIsMention] = useState(false);
 
   const [selectedchannels, setSelectedChannels] = useState<
@@ -62,19 +84,6 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     }
   };
 
-  interface Member {
-    id: string;
-    name: string;
-  }
-
-  interface Channel {
-    id: string;
-    name: string;
-    is_private: boolean;
-    num_members: number;
-    members: Member[];
-  }
-
   const fetchMessage = async () => {
     try {
       const response = await axios.get(
@@ -86,6 +95,28 @@ export default function ChannelId({ params }: { params: { id: string } }) {
         }
       );
       console.log(response);
+      const Msg = response.data.messages
+        .map((data: any) => {
+          if (data.app_id && !data.files) {
+            return {
+              user_name: data.bot_profile.name,
+              message: data.text,
+              img: data.bot_profile.icons.image_36,
+            };
+          } else if (data.files) {
+            return {
+              user_name: data.app_id,
+              message: data.text,
+              img: data.bot_id,
+              file: data.files[0].url_private,
+            };
+          } else {
+            return null;
+          }
+        })
+        .filter(Boolean);
+      console.log("CHECK", Msg);
+      setMessageHistory(Msg);
       // setChannels(response.data);
       // const newchannel = response?.data.filter(
       //   (channel: Channel) => channel.id === id
@@ -217,7 +248,28 @@ export default function ChannelId({ params }: { params: { id: string } }) {
                   })}
                 </div>
               )}
-              <div className="w-full h-full max-h-full  overflow-y-scroll"></div>
+              <div className="w-full h-full max-h-full px-4 gap-2 flex flex-col justify-end  overflow-y-scroll">
+                {messageHistory.map((data) => {
+                  return data.file ? (
+                    <>
+                      <div
+                        key={data.img}
+                        className="bg-blue-500 p-2 rounded-md max-w-[60%] w-fit ml-auto "
+                      >
+                        {data.message} file:
+                        <Link href={data.file}>{data.file}</Link>
+                      </div>
+                    </>
+                  ) : (
+                    <div
+                      key={data.img}
+                      className="bg-blue-500 p-2 rounded-md max-w-[60%] w-fit ml-auto break-words"
+                    >
+                      {data.message}
+                    </div>
+                  );
+                })}
+              </div>
               <div className="px-4 sticky bottom-0 py-1 w-full">
                 <div className="bg-gray-500 rounded-md text-start text-white p-3 flex items-center gap-2">
                   <TiAttachment

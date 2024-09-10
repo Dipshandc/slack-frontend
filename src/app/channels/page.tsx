@@ -116,7 +116,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
       }
     };
     fetchData();
-  });
+  }, []);
 
   return (
     <main className="flex max-h-screen h-screen w-full bg-fuchsia-50  rounded-xl justify-start">
