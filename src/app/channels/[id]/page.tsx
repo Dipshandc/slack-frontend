@@ -95,7 +95,9 @@ export default function ChannelId({ params }: { params: { id: string } }) {
         }
       );
       console.log(response);
-      const Msg = response.data.messages
+      const historyMessage = response.data.message
+      const reversed = historyMessage
+      const Msg = reversed
         .map((data: any) => {
           if (data.app_id && !data.files) {
             return {
@@ -115,17 +117,7 @@ export default function ChannelId({ params }: { params: { id: string } }) {
           }
         })
         .filter(Boolean);
-      console.log("CHECK", Msg);
       setMessageHistory(Msg);
-      // setChannels(response.data);
-      // const newchannel = response?.data.filter(
-      //   (channel: Channel) => channel.id === id
-      // );
-      // setSelectedChannels(newchannel);
-      // newchannel && newchannel.length > 0;
-      // setMembers(newchannel[0].members);
-      // console.log("Printing", newchannel[0].members);
-      // return response;
     } catch (error) {
       console.error(error);
     }
