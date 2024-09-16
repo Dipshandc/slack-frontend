@@ -45,7 +45,6 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
           console.log(response);
           console.log("Access Token:", accessToken);
           router.replace(`http://dev.localhost:3000/tools/ats/access/${accessToken}`);
-          alert(response.data);
         } else {
           console.error("Error:", response.data.error);
         }
