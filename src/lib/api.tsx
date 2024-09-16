@@ -21,7 +21,7 @@ export const sendAccessToken = async (accessToken: string) => {
     access: accessToken,
   };
   const response = await axios.post(
-    `http://localhost:8000/integrations/integration-slack/save-access-token/`,
+    `http://dev.localhost:8000/integrations/integration-slack/save-access-token/`,
     data,
     {
       headers: {
