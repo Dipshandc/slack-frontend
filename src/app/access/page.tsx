@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import {sendAccessToken} from "@/lib/api";
+import { sendAccessToken } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 interface AccessPageProps {
   searchParams: {
@@ -13,6 +14,7 @@ interface AccessPageProps {
 }
 
 const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
+  const router = useRouter();
   const code = searchParams.code;
 
   useEffect(() => {
@@ -42,15 +44,16 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
           const accessToken = response.data.access_token;
           console.log(response);
           console.log("Access Token:", accessToken);
-          try{
+          try {
             const response = await sendAccessToken(accessToken);
-            console.log(response)
-            alert(response.data)
+            if (response.data.success === 1) {
+              router.replace(`http://dev.localhost:3000/tools/ats/settings`);
+              console.log(response);
+              alert(response.data);
+            }
+          } catch (error) {
+            console.log("Error sending access token to backend", error);
           }
-          catch(error){
-            console.log("Error sending access token to backend",error)
-          }
-
         } else {
           console.error("Error:", response.data.error);
         }

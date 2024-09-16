@@ -16,19 +16,18 @@ export const sendFile = async (data: FormData) => {
   return response;
 };
 
-export const sendAccessToken = async (accessToken:string) => {
+export const sendAccessToken = async (accessToken: string) => {
   const data = {
-    "access":accessToken
-  }
-  const response = await axios.post(`${API_BASE_URL}/api/access-token/`, data, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+    access: accessToken,
+  };
+  const response = await axios.post(
+    `http://localhost:8000/integrations/integration-slack/save-access-token/`,
+    data,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response;
 };
-
-
-
-
-
