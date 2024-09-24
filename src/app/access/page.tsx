@@ -16,6 +16,7 @@ interface AccessPageProps {
 const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
   const router = useRouter();
   const code = searchParams.code;
+  const tenant = searchParams.state;
 
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
@@ -45,7 +46,7 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
           console.log(response);
           console.log("Access Token:", accessToken);
           router.replace(
-            `http://dev.localhost:3000/tools/ats/access/${accessToken}`
+            `http://${tenant}.localhost:3000/tools/ats/access/${accessToken}`
           );
         } else {
           console.error("Error:", response.data.error);
