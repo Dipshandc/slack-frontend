@@ -19,14 +19,14 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
   const router = useRouter();
   const code = searchParams.code;
   const tenant = searchParams.state;
-  const authorizationCode = code;
+  const [loader, setLoader] = useState<boolean>(true);
 
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
     console.log("client", clientId);
     const clientSecret = process.env.NEXT_PUBLIC_CLIENT_SECRET;
+    const authorizationCode = code;
     console.log("clientSecret", clientSecret);
-    const [loader, setLoader] = useState<boolean>(true);
     const redirectUri = "https://slack-frontend-iota.vercel.app/access/";
 
     const exchangeCodeForToken = async () => {
