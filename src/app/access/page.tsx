@@ -56,8 +56,6 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
         }
       } catch (error) {
         console.error("Request failed:", error);
-      } finally {
-        router.replace(`http://${tenant}.localhost:3000/tools/ats/settings`);
       }
     };
 
