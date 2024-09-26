@@ -1,5 +1,7 @@
 "use client"; // Make this component client-side
 
+// this page is only for testing slack integration for development
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
@@ -24,6 +26,7 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
     const clientSecret = process.env.NEXT_PUBLIC_CLIENT_SECRET;
     console.log("clientSecret", clientSecret);
     const authorizationCode = code;
+    const [loader, setLoader] = useState<boolean>(true);
     const redirectUri = "https://slack-frontend-iota.vercel.app/access/";
 
     const exchangeCodeForToken = async () => {
@@ -53,19 +56,61 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
         }
       } catch (error) {
         console.error("Request failed:", error);
+      } finally {
+        router.replace(`http://${tenant}.localhost:3000/tools/ats/settings`);
       }
     };
 
     if (authorizationCode) {
       console.log(authorizationCode);
       exchangeCodeForToken();
+    } else {
+      router.replace(`http://${tenant}.localhost:3000/tools/ats/settings`);
     }
   }, [code]);
 
   return (
-    <div>
-      <Link href="/channels">Go to see channels</Link>
-    </div>
+    <>
+      {loader ? (
+        <>
+          <div className="mt-0 z-20 w-full top-0 rounded-lg">
+            <div className="flex h-[20vh] w-full flex-col items-center justify-center">
+              <div className="dot-spinner">
+                <div className="dot-spinner__dot"></div>
+                <div className="dot-spinner__dot"></div>
+                <div className="dot-spinner__dot"></div>
+                <div className="dot-spinner__dot"></div>
+                <div className="dot-spinner__dot"></div>
+                <div className="dot-spinner__dot"></div>
+                <div className="dot-spinner__dot"></div>
+                <div className="dot-spinner__dot"></div>
+              </div>
+              <span className="mt-5 text-xl font-semibold capitalize p-2 py-1 rounded">
+                Loading...
+              </span>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="mt-0 z-20 w-full top-0 rounded-lg">
+          <div className="flex h-[20vh] w-full flex-col items-center justify-center">
+            <div className="dot-spinner">
+              <div className="dot-spinner__dot"></div>
+              <div className="dot-spinner__dot"></div>
+              <div className="dot-spinner__dot"></div>
+              <div className="dot-spinner__dot"></div>
+              <div className="dot-spinner__dot"></div>
+              <div className="dot-spinner__dot"></div>
+              <div className="dot-spinner__dot"></div>
+              <div className="dot-spinner__dot"></div>
+            </div>
+            <span className="mt-5 text-xl font-semibold capitalize p-2 py-1 rounded">
+              Loading...
+            </span>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
