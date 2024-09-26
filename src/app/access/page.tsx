@@ -64,9 +64,7 @@ const AccessPage: React.FC<AccessPageProps> = ({ searchParams }) => {
     if (authorizationCode) {
       console.log(authorizationCode);
       exchangeCodeForToken();
-    } else {
-      router.replace(`http://${tenant}.localhost:3000/tools/ats/settings`);
-    }
+    } 
   }, [code]);
 
   return (
