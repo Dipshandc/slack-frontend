@@ -1,4 +1,5 @@
 "use client";
+// This page is for development testing only 
 import axios from "axios";
 import { fetchChannels, sendFile } from "@/lib/api";
 import {
