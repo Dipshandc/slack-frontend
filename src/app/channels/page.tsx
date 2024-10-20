@@ -76,26 +76,26 @@ export default function ChannelId({ params }: { params: { id: string } }) {
     members: Member[];
   }
 
-  // const handleFileSubmit = async () => {
-  //   if (!file) {
-  //     console.log("No file selected");
-  //     return;
-  //   }
+  const handleFileSubmit = async () => {
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
 
-  //   const formData = new FormData();
-  //   formData.append("file", file);
-  //   formData.append("message", message);
-  //   formData.append("channel_id", id);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("message", message);
+    formData.append("channel_id", id);
 
-  //   try {
-  //     const response = await sendFile(formData);
-  //     console.log("Upload successful", response);
-  //     alert("Upload successful");
-  //   } catch (error) {
-  //     console.error("Error uploading file:", error);
-  //     alert("Error uploading file");
-  //   }
-  // };
+    try {
+      const response = await sendFile(formData);
+      console.log("Upload successful", response);
+      alert("Upload successful");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Error uploading file");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
